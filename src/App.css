@@ -1,38 +1,179 @@
-.App {
-  text-align: center;
+* {
+  font-family: monospace, serif;
+  font-size: large;
+  overflow: hidden;
+  user-select: none;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+#mainContainer {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100vh - 60px);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.bubble {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  border-radius: 100%;
+  filter: blur(100px);
+  z-index: -99;
+  transition: left 5s ease, top 5s ease;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.bubbleOne {
+  background-color: #C6F1FF;
+}
+
+.bubbleTwo {
+  background-color: #F5E9FF;
+}
+
+.appArea {
+  position: relative;
+  width: 100%;
+  height: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.langDropDown {
+  background-color: transparent;
+  border: none;
+  width: 100%;
+  text-align: center;
+  appearance: none;
+  text-transform: uppercase;
+  outline: none;
+  cursor: pointer
+}
+
+.langDropDown:hover {
+  color: gray;
+}
+
+.timer {
+  display: flex;
+  column-gap: 25px;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  margin: 20px 0;
 }
 
-.App-link {
-  color: #61dafb;
+.timerBtn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding-top: 0;
+  padding-bottom: 0;
+  color: darkgray;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.timerBtn:hover {
+  color: black;
+}
+
+.bold {
+  color: black;
+}
+
+#countdown {
+  display: none;
+}
+
+#gameArea {
+  position: relative;
+  margin-top: 30px;
+  max-width: 800px;
+  height: 110px;
+  padding-left: 10px;
+  line-height: 200%;
+  overflow: hidden;
+}
+
+.expectedInput {
+  position: relative;
+  top: 0px;
+  filter: blur(5px);
+  transition: filter 0.7s ease-out;
+  color: #808080;
+}
+
+#mainContainer:focus .expectedInput {
+  filter: blur(0);
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    opacity: 0;
   }
+  100% {
+    opacity: 1;
+  }
+}
+
+#cursor {
+  display: none;
+  width: 2px;
+  height: 1.2rem;
+  background-color: black;
+  position: fixed;
+  top: 253px;
+  left: 248px;
+  animation: blink 1s infinite;
+  transition: filter 0.7s ease-out;
+  transition: left 0.15s ease;
+  filter: blur(5px);
+}
+
+#mainContainer:focus #cursor {
+  filter: blur(0);
+}
+
+.focusError {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  transition: opacity 0.7s ease-out;
+}
+
+#mainContainer:focus .focusError {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.correct {
+  color: black;
+  transition: all 0.5s ease-out;
+}
+
+.incorrect {
+  color: red;
+  transition: all 0.5s ease-out;
+}
+
+.footer {
+  display: flex;
+  justify-content: end;
+}
+
+.footer a {
+  text-decoration: none;
+  color: black;
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.gitHubIcon {
+  font-size: xx-large;
 }
