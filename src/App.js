@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { FaGithub } from "react-icons/fa";
+import { RiRestartLine } from "react-icons/ri";
+import { TextInputConfig } from "@google/generative-ai";
 
 function moveBubbles() {
   const bubbles = document.querySelectorAll('.bubble');
@@ -17,19 +19,153 @@ function moveBubbles() {
   });
 }
 
-
 function App() {
+
+  let documentFocus = false;
+
+  // const [generatedText, setGeneratedText] = useState('');
+  // const [isLoading, setIsLoading] = useState(false);
+  // const prompt = "Write a 300-word story that is zen and calm";
+  // const textGeneratorClient = new TextGeneratorServiceClient();
 
   const generatedText = `Once upon a time, in a remote village nestled among misty mountains, there lived an old monk renowned for his wisdom. One day, a traveler sought his counsel, burdened with worries and seeking enlightenment. The monk, without a word, poured tea into the traveler's cup until it overflowed. Bewildered, the traveler exclaimed, "It's full! Stop!" The monk smiled gently, "Your mind is like this cup, overflowing with thoughts. Empty it, and you will find clarity." In that moment, the traveler understood—the path to peace lay not in accumulating, but in letting go. With a lighter heart, the traveler journeyed on.`;
   let expectedInput = generatedText.split('');
   let userInput = [];
-  let duration = 15;
+  let savedDuration = Number(localStorage.getItem("duration"));
+  let duration = savedDuration || 15;
   let gameTime = duration * 1000;
-  let [selectedDuration, setSelectedDuration] = useState(15);
+  let [selectedDuration, setSelectedDuration] = useState(savedDuration || 15);
   window.timer = null;
   window.gameStart = null;
 
+  let totalWords = '';
+  let totalWordsArr = [];
+  let totalWordsCount = 0;
+  let typedWords = '';
+  let typedWordCount = 0;
+  let slicedTypedWord = [];
+  let incorrectWordCount = 0;
+  let indices = [];
+  let startIndex = 0;
+
+  const [rawwpm, setRawwpm] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
+  const [netwpm, setNetwpm] = useState(0);
+  let calcrawwpm = 0;
+  let calcaccuracy = 0;
+  let calcnetwpm = 0;
+
+  // try {
+  //   const genAI = new GoogleGenerativeAI('AIzaSyD5dHeZj7YKSpEi3vGZlNZ49LHlb7KZZIU');
+
+  //   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+  //   const prompt = "Write a 300-word story that is zen and calm";
+
+  //   const result = model.generateContent(prompt);
+  //   const response = result.response;
+  //   const generatedStory = response.text();
+  //   console.log("Story: ", generatedStory);
+  //   setGeneratedText(generatedStory);
+  // } catch (error) {
+  //   console.error('Error generating AI content:', error);
+  // }
+
+  // const generateTextWithGemini = async (prompt) => {
+  //   const apiKey = 'AIzaSyB393a7qsty4vjrfiqUuzxYR5bVVSdpUNU';
+
+  //   if (!apiKey) {
+  //     throw new Error('Missing Gemini API key.');
+  //   }
+
+  //   const config = {
+  //     prompt: prompt,
+  //     temperature: 0.7,
+  //     max_tokens: 200,
+  //   };
+
+  //   const request = {
+  //       parent: `projects/type-in-zen/locations/global`,
+  //       textInput: config,
+  //   };
+
+  //   try {
+  //       const [response] = await TextInputConfig.generateText(request);
+  //       return response.text;
+  //   } catch (error) {
+  //       throw new Error('Error generating text:', error);
+  //   }
+  // }
+
+  // const generateAItext = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await generateTextWithGemini(prompt);
+  //     setGeneratedText(response);
+  //   } catch (error) {
+  //     console.error('Error generating text: ', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
+  // generateAItext();
+
+  const handleSubmit = () => {
+    totalWordsArr = totalWords.trim().split(/\s+/);
+    totalWordsCount = (totalWords.trim().split(/\s+/)).length;
+    for (var i = 0; i < totalWords.length; i++) {
+      if (totalWords[i] === ' ') indices.push(i);
+    }
+
+    for (var j = 0; j < indices.length; j++) {
+      let endIndex = indices[j];
+      let sliced = typedWords.slice(startIndex, endIndex);
+      slicedTypedWord.push(sliced);
+      startIndex = endIndex + 1;
+    }
+    let remainder = typedWords.slice(startIndex);
+
+    slicedTypedWord.push(remainder);
+
+    for (var k = 0; k < totalWordsArr.length; k++) {
+      if (totalWordsArr[k] !== slicedTypedWord[k]) {
+        incorrectWordCount++;
+      }
+    }
+
+    // Calculation
+    calcrawwpm = totalWordsCount * (60 / duration);
+    calcaccuracy = 100 - (incorrectWordCount * (100 / totalWordsCount));
+    calcnetwpm = calcaccuracy * (calcrawwpm / 100);
+
+    setRawwpm(Math.round(calcrawwpm));
+    setAccuracy(Math.round(calcaccuracy));
+    setNetwpm(Math.round(calcnetwpm));
+  }
+
   const handleKeyDown = (e) => {
+
+    if (documentFocus === false) {
+      documentFocus = true;
+      const expectedInputId = document.querySelectorAll('.expectedInput');
+      const focusError = document.querySelector('.focusError');
+      const cursor = document.querySelector('#cursor');
+
+      if (expectedInputId) {
+        expectedInputId.forEach((e) => {
+          e.style.filter = 'blur(0)';
+        })
+      }
+      if (cursor) {
+        cursor.style.filter = 'blur(0)';
+      }
+      if (focusError) {
+        focusError.style.opacity = '0';
+      }
+      return 0;
+    }
+
     const key = e.key;
 
     if (key.length === 1) {
@@ -40,15 +176,11 @@ function App() {
     const expectedLetter = expectedInput[currentIndex];
     const userLetter = userInput[currentIndex];
 
-    console.log("user letter: ", userLetter);
-    console.log("expected letter: ", expectedLetter);
     const currentExpectedClass = `.letter${currentIndex}`;
     const currentLetter = document.querySelector(currentExpectedClass);
 
     // start timer
     if (!window.timer && currentLetter) {
-      console.log("game time: ", gameTime);
-      console.log("duration: ", duration);
       const timerBtn = document.querySelectorAll('.timerBtn');
       timerBtn.forEach((e) => {
         e.style.display = 'none';
@@ -65,25 +197,43 @@ function App() {
         const sLeft = (gameTime / 1000) - sPassed;
         document.getElementById('countdown').innerHTML = sLeft + '';
 
+        // Game end
         if (sLeft === 0) {
+          handleSubmit();
+          const appArea = document.querySelector('.appArea');
+          appArea.style.display = 'none';
+
+          const resultArea = document.querySelector('.resultArea');
+          resultArea.style.display = 'flex';
+
+          document.addEventListener('keydown', (e) => {
+
+            if (e.key === 'Tab') {
+              window.location.reload();
+            }
+          })
+
           clearInterval(window.timer);
           window.timer = null;
+
         }
       }, 1000);
     }
 
     if (key.length === 1 && currentIndex >= 0) {
       if (userLetter === expectedLetter && currentLetter) {
-        console.log("correct");
         currentLetter.classList.add('correct');
       } else if (userLetter !== expectedInput) {
-        console.log("incorrect");
         currentLetter.classList.add('incorrect');
       }
+      totalWords += expectedLetter;
+      typedWords += userLetter;
     } else if (key === 'Backspace' && currentIndex >= 0) {
       currentLetter.classList.remove('correct');
       currentLetter.classList.remove('incorrect');
       userInput.pop();
+      totalWords = totalWords.substring(0, totalWords.length - 1);
+      typedWords = typedWords.substring(0, typedWords.length - 1);
     }
 
     if (currentLetter) {
@@ -117,11 +267,17 @@ function App() {
     const expectedInputId = document.querySelectorAll('.expectedInput');
     const focusError = document.querySelector('.focusError');
 
-    expectedInputId.forEach((e) => {
-      e.style.filter = 'blur(0)';
-    })
-    cursor.style.filter = 'blur(0)';
-    focusError.style.opacity = '0';
+    if (expectedInputId) {
+      expectedInputId.forEach((e) => {
+        e.style.filter = 'blur(0)';
+      })
+    }
+    if (cursor) {
+      cursor.style.filter = 'blur(0)';
+    }
+    if (focusError) {
+      focusError.style.opacity = '0';
+    }
 
   }
 
@@ -129,11 +285,13 @@ function App() {
     duration = newDuration;
     setSelectedDuration(newDuration);
     gameTime = newDuration * 1000;
+    localStorage.setItem("duration", newDuration);
   }
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('blur', () => {
+      documentFocus = false;
       const expectedInputId = document.querySelectorAll('.expectedInput');
       const focusError = document.querySelector('.focusError');
       const cursor = document.querySelector('#cursor');
@@ -150,7 +308,9 @@ function App() {
         focusError.style.opacity = '1';
       }
     })
+
     window.addEventListener('focus', () => {
+      documentFocus = true;
       const expectedInputId = document.querySelectorAll('.expectedInput');
       const focusError = document.querySelector('.focusError');
       const cursor = document.querySelector('#cursor');
@@ -170,6 +330,7 @@ function App() {
 
     moveBubbles();
     const intervalId = setInterval(moveBubbles, 3000);
+    console.log(documentFocus);
 
     return () => clearInterval(intervalId);
 
@@ -182,11 +343,32 @@ function App() {
       <div className='header'>
         <img src={logo} alt="logo"/>
       </div>
+      <div className='resultArea'>
+        <div>
+          <div className='resultBlock'>
+            <div className='netwpm'>
+              <p>WPM</p>
+              <h1>{netwpm}</h1>
+            </div>
+            <div className='detailBlock'>
+              <div className='accuracy'>
+                <p>ACCURACY</p>
+                <h1>{accuracy}%</h1>
+              </div>
+              <div className='rawwpm'>
+                <p>RAW WPM</p>
+                <h1>{rawwpm}</h1>
+              </div>
+            </div>
+          </div>
+          <button onClick={() => window.location.reload()} className='restartBtn'><RiRestartLine /></button>
+          <p className='resetInstruction'>reset shortcut - 'Tab'</p>
+        </div>
+      </div>
       <div className='appArea'>
         <div>
           <select className='langDropDown' name='language' id='language'>
             <option value="eng">- English -</option>
-            <option value="myn">- Burmese -</option>
           </select>
         </div>
         <div className='timer'>
@@ -197,7 +379,7 @@ function App() {
           <div id='countdown'>{selectedDuration}</div>
         </div>
         <div id='gameArea'>
-          <div className='focusError'>Start typing or click anywhere to focus</div>
+          <div className='focusError'>Press a key or click anywhere to focus</div>
           {expectedInput.map((letter, index) => (
             <span key={index} className={`expectedInput letter${index}`}>{letter}</span>
           ))}
@@ -205,7 +387,7 @@ function App() {
         </div>
       </div>
       <div className='footer'>
-        <a href="https://github.com/erik-ksth" target="_blank" rel="noreferrer">created by Erik <FaGithub className="gitHubIcon"/></a>
+        <a href="https://github.com/erik-ksth/type-in-zen.git" target="_blank" rel="noreferrer">created by Erik <FaGithub className="gitHubIcon"/></a>
       </div>
     </div>
   );
