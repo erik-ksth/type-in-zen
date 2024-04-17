@@ -95,6 +95,12 @@
   overflow: hidden;
 }
 
+.expectedInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
 .expectedInput {
   position: relative;
   top: 0px;
@@ -231,6 +237,13 @@
 
 .restartBtn:hover {
   color: darkgray;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 1s ease;
 }
 
 .footer {
