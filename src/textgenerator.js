@@ -46,7 +46,7 @@ async function runChat() {
     history: [],
   });
 
-  const result = await chat.sendMessage("Write a 100-word story paragraph that is relaxing, zen and calming");
+  const result = await chat.sendMessage("Write a new 100-word relaxing story for child.");
   const response = result.response;
   console.log(response.text());
   return response.text();
