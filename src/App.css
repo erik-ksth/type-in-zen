@@ -248,7 +248,7 @@
 
 .footer {
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
 }
 
 .footer a {
@@ -257,6 +257,10 @@
   display: flex;
   align-items: center;
   column-gap: 10px;
+}
+
+.footer a:hover {
+  text-decoration: underline;
 }
 
 .gitHubIcon {

@@ -387,11 +387,18 @@ function App() {
       </div>
       <div className="footer">
         <a
+          href="https://erikhein.info"
+          target="_blank"
+          rel="noreferrer"
+        >
+          created by Erik
+        </a>
+        <a
           href="https://github.com/erik-ksth/type-in-zen.git"
           target="_blank"
           rel="noreferrer"
         >
-          created by Erik <FaGithub className="gitHubIcon" />
+          <FaGithub className="gitHubIcon" />
         </a>
       </div>
     </div>
