@@ -16,7 +16,7 @@ async function runChat() {
   };
 
   const prompt =
-    "Write a new 100-word relaxing story for a child. Make it soothing and peaceful.";
+    "Write a new 100-word relaxing story for a child. Make it soothing and peaceful. Make the words easy to type. Do not use many punctuation marks.";
 
   const contents = [
     {

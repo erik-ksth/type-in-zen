@@ -24,11 +24,11 @@
 }
 
 .bubbleOne {
-  background-color: #C6F1FF;
+  background-color: #c6f1ff;
 }
 
 .bubbleTwo {
-  background-color: #F5E9FF;
+  background-color: #f5e9ff;
 }
 
 .appArea {
@@ -48,7 +48,7 @@
   appearance: none;
   text-transform: uppercase;
   outline: none;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .langDropDown:hover {
@@ -265,4 +265,34 @@
 
 .gitHubIcon {
   font-size: xx-large;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.mute-btn {
+  background: none;
+  border: none;
+  color: #4a4a4a;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.mute-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.mute-btn:active {
+  transform: scale(0.95);
 }

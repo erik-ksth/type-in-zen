@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import { FaGithub } from "react-icons/fa";
 import { RiRestartLine } from "react-icons/ri";
+import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import runChat from "./textgenerator";
 
 function moveBubbles() {
@@ -25,6 +26,17 @@ function App() {
   const [generatedText, setGeneratedText] = useState("");
   const [expectedInput, setExpectedInput] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(0);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const audioRef = useRef(null);
+
+  const musicTracks = [
+    require("./musics/ZenMusicHealingSounds.mp3"),
+    require("./musics/ZenMusicFullMoonRelaxation.mp3"),
+    require("./musics/ZenParadiseForestMusic.mp3"),
+  ];
 
   useEffect(() => {
     const fetchGeneratedText = async () => {
@@ -41,6 +53,81 @@ function App() {
       setExpectedInput(generatedText.split(""));
     }
   }, [generatedText]);
+
+  useEffect(() => {
+    audioRef.current = new Audio(musicTracks[currentTrack]);
+    audioRef.current.loop = true;
+
+    // Try to autoplay
+    const playPromise = audioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+          setAutoplayBlocked(false);
+        })
+        .catch(() => {
+          setAutoplayBlocked(true);
+          setIsPlaying(false);
+        });
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [currentTrack]);
+
+  // Add click handler to start music on first interaction
+  const handleFirstInteraction = () => {
+    if (autoplayBlocked && audioRef.current) {
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          setAutoplayBlocked(false);
+        })
+        .catch((error) => console.log("Playback failed:", error));
+    }
+  };
+
+  // Add effect to handle user interaction
+  useEffect(() => {
+    if (autoplayBlocked) {
+      const handleInteraction = () => {
+        handleFirstInteraction();
+        // Remove listeners after first interaction
+        document.removeEventListener("click", handleInteraction);
+        document.removeEventListener("keydown", handleInteraction);
+      };
+
+      document.addEventListener("click", handleInteraction);
+      document.addEventListener("keydown", handleInteraction);
+
+      return () => {
+        document.removeEventListener("click", handleInteraction);
+        document.removeEventListener("keydown", handleInteraction);
+      };
+    }
+  }, [autoplayBlocked]);
+
+  // Add effect to handle track ending and auto-play next track
+  useEffect(() => {
+    if (audioRef.current) {
+      const handleEnded = () => {
+        setCurrentTrack((prev) => (prev + 1) % musicTracks.length);
+      };
+
+      audioRef.current.addEventListener("ended", handleEnded);
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.removeEventListener("ended", handleEnded);
+        }
+      };
+    }
+  }, [currentTrack]);
 
   // const generatedText = `Once upon a time, in a remote village nestled among misty mountains, there lived an old monk renowned for his wisdom. One day, a traveler sought his counsel, burdened with worries and seeking enlightenment. The monk, without a word, poured tea into the traveler's cup until it overflowed. Bewildered, the traveler exclaimed, "It's full! Stop!" The monk smiled gently, "Your mind is like this cup, overflowing with thoughts. Empty it, and you will find clarity." In that moment, the traveler understood—the path to peace lay not in accumulating, but in letting go. With a lighter heart, the traveler journeyed on.`;
   // let expectedInput = generatedText.split("");
@@ -253,6 +340,13 @@ function App() {
     localStorage.setItem("duration", newDuration);
   };
 
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener(
@@ -309,6 +403,15 @@ function App() {
       <div className="bubble bubbleTwo"></div>
       <div className="header">
         <img src={logo} alt="logo" />
+        {autoplayBlocked ? (
+          <button onClick={handleFirstInteraction} className="mute-btn">
+            <FaPlay />
+          </button>
+        ) : (
+          <button onClick={toggleMute} className="mute-btn">
+            {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+          </button>
+        )}
       </div>
       <div className="resultArea">
         <div>
