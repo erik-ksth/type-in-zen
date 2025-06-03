@@ -30,7 +30,7 @@ function App() {
     const fetchGeneratedText = async () => {
       const text = await runChat();
       setGeneratedText(text);
-      setLoading(false); 
+      setLoading(false);
     };
 
     fetchGeneratedText();
@@ -106,7 +106,7 @@ function App() {
     if (loading) {
       return;
     }
-    
+
     if (documentFocus === false) {
       documentFocus = true;
       const expectedInputId = document.querySelectorAll(".expectedInput");
@@ -185,8 +185,8 @@ function App() {
       if (userLetter === currentLetter.innerHTML && currentLetter) {
         currentLetter.classList.add("correct");
       } else if (userLetter !== currentLetter.innerHTML) {
-        if (currentLetter.innerHTML === ' ') {
-          currentLetter.style.textDecoration = 'underline';
+        if (currentLetter.innerHTML === " ") {
+          currentLetter.style.textDecoration = "underline";
         }
         currentLetter.classList.add("incorrect");
       }
@@ -195,7 +195,7 @@ function App() {
     } else if (key === "Backspace" && currentIndex >= 0) {
       currentLetter.classList.remove("correct");
       currentLetter.classList.remove("incorrect");
-      currentLetter.style.textDecoration = 'none';
+      currentLetter.style.textDecoration = "none";
       userInput.pop();
       totalWords = totalWords.substring(0, totalWords.length - 1);
       typedWords = typedWords.substring(0, typedWords.length - 1);
@@ -255,24 +255,28 @@ function App() {
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("blur", () => {
-      documentFocus = false;
-      const expectedInputId = document.querySelectorAll(".expectedInput");
-      const focusError = document.querySelector(".focusError");
-      const cursor = document.querySelector("#cursor");
+    window.addEventListener(
+      "blur",
+      () => {
+        documentFocus = false;
+        const expectedInputId = document.querySelectorAll(".expectedInput");
+        const focusError = document.querySelector(".focusError");
+        const cursor = document.querySelector("#cursor");
 
-      if (expectedInputId) {
-        expectedInputId.forEach((e) => {
-          e.style.filter = "blur(5px)";
-        });
-      }
-      if (cursor) {
-        cursor.style.filter = "blur(5px)";
-      }
-      if (focusError) {
-        focusError.style.opacity = "1";
-      }
-    }, [handleKeyDown]);
+        if (expectedInputId) {
+          expectedInputId.forEach((e) => {
+            e.style.filter = "blur(5px)";
+          });
+        }
+        if (cursor) {
+          cursor.style.filter = "blur(5px)";
+        }
+        if (focusError) {
+          focusError.style.opacity = "1";
+        }
+      },
+      [handleKeyDown]
+    );
 
     window.addEventListener("focus", () => {
       documentFocus = true;
@@ -371,9 +375,9 @@ function App() {
             <div className="loadingContainer">Loading...</div>
           ) : (
             <>
-            <div className="focusError">
-              Press a key or click anywhere to focus
-            </div>
+              <div className="focusError">
+                Press a key or click anywhere to focus
+              </div>
               {expectedInput.map((letter, index) => (
                 <span key={index} className={`expectedInput letter${index}`}>
                   {letter}
@@ -381,16 +385,11 @@ function App() {
               ))}
               <div id="cursor"></div>
             </>
-          )
-          }
+          )}
         </div>
       </div>
       <div className="footer">
-        <a
-          href="https://erikhein.info"
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a href="https://erikhein.info" target="_blank" rel="noreferrer">
           created by Erik
         </a>
         <a
